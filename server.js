@@ -10,6 +10,7 @@ app.configure(function () {
 });
 
 app.get('/wines', wine.findAll);
+app.get('/wines/all', wine.viewAll);
 app.get('/wines/name/:name', wine.findByName);
 app.get('/wines/type/:type', wine.findByType);
 app.post('/wines/add', wine.addWine);

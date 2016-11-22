@@ -172,7 +172,7 @@ exports.findByName = function(req, res) {
 	    });
 };
 exports.findAll = function(req, res) {
-	db.list({startkey:'', limit:10}, function(err, body) {
+	db.list({startkey:'', 'include_docs': true, limit:20}, function(err, body) {
 		  if (!err) {
 			res.send(body);
 		    body.rows.forEach(function(doc) {
@@ -182,7 +182,18 @@ exports.findAll = function(req, res) {
 		});
 };
 
-
+exports.viewAll = function(req, res) {
+	db.view('pokemon', 'all', {'include_docs': false}, function(err, body){
+	    if(!err){
+	    	console.log("retrieved by view: all");
+	    	res.send(body);
+		    body.rows.forEach(function(doc) {
+		      console.log(doc);
+		    });
+	    }
+	    
+	    });
+};
 exports.addWine = function(req, res) {
     var wine = req.body;
     console.log('Adding wine: ' + JSON.stringify(wine));
