@@ -34,21 +34,30 @@ var handleCB = function (status,op,err,body) {
 }
 var populateDB = function() {
 	   var data = [ { 
-		   "_id": "pikachu",
 			table: 'monsters',
 		    name: 'pikachu', 
 		    skills: ['thunder bolt', 'iron tail', 'quick attack', 'mega punch'], 
 		    type: 'electric' 
 		},
 	    { 
-			"_id": "bulbosaur",
 			table: 'monsters',
 		    name: 'bulbosaur', 
 		    skills: ['lightning fire', 'thunder stomp', 'quick kill', 'super punch'], 
 		    type: 'grass' 
 		},
+	    { 
+			table: 'monsters',
+		    name: 'weedle', 
+		    skills: ['grass fire', 'herbal stomp', 'quick greening', 'super pull'], 
+		    type: 'herb' 
+		},
+	    { 
+			table: 'monsters',
+		    name: 'bull', 
+		    skills: ['cow stampede', 'lift off', 'mega horn', 'moo'], 
+		    type: 'herb' 
+		},
 		{ 
-			"_id": "ivysaur",
 			table: 'monsters',
 		    name: 'ivysaur', 
 		    skills: ['lightning strike', 'crumbly stomp', 'quick kill', 'super punch'], 
@@ -135,7 +144,7 @@ var listDB = function() {
 
 exports.findByType = function(req, res) {
 	var type = req.params.type;
-	db.view('_design/pokemon', 'by_type', {'key': type, 'include_docs': true}, function(err, body){
+	db.view('pokemon', 'by_type', {'key': type, 'include_docs': false}, function(err, body){
 	    if(!err){
 	    	console.log("retrieved by type: "+type);
 	    	res.send(body);
@@ -150,7 +159,8 @@ exports.findByType = function(req, res) {
 
 exports.findByName = function(req, res) {
 	var name = req.params.name;
-	db.view('_design/pokemon', 'by_name', {'key': name, 'include_docs': true}, function(err, body){
+ 
+	db.view('pokemon', 'by_name', {'key': name, 'include_docs': false}, function(err, body){
 	    if(!err){
 	    	console.log("retrieved by name: "+name);
 	    	res.send(body);
@@ -162,7 +172,7 @@ exports.findByName = function(req, res) {
 	    });
 };
 exports.findAll = function(req, res) {
-	db.list({startkey:'', limit:3}, function(err, body) {
+	db.list({startkey:'', limit:10}, function(err, body) {
 		  if (!err) {
 			res.send(body);
 		    body.rows.forEach(function(doc) {
@@ -171,6 +181,7 @@ exports.findAll = function(req, res) {
 		  }
 		});
 };
+
 
 exports.addWine = function(req, res) {
     var wine = req.body;
