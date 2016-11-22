@@ -194,11 +194,11 @@ exports.viewAll = function(req, res) {
 	    
 	    });
 };
-exports.addWine = function(req, res) {
-    var wine = req.body;
-    console.log('Adding wine: ' + JSON.stringify(wine));
-    db.collection('wines', function(err, collection) {
-        collection.insert(wine, {safe:true}, function(err, result) {
+exports.addPoke = function(req, res) {
+    var Poke = req.body;
+    console.log('Adding Poke: ' + JSON.stringify(Poke));
+    db.collection('Pokes', function(err, collection) {
+        collection.insert(Poke, {safe:true}, function(err, result) {
             if (err) {
                 res.send({'error':'An error has occurred'});
             } else {
@@ -209,28 +209,28 @@ exports.addWine = function(req, res) {
     });
 }
 
-exports.updateWine = function(req, res) {
+exports.updatePoke = function(req, res) {
     var id = req.params.id;
-    var wine = req.body;
-    console.log('Updating wine: ' + id);
-    console.log(JSON.stringify(wine));
-    db.collection('wines', function(err, collection) {
-        collection.update({'_id':new BSON.ObjectID(id)}, wine, {safe:true}, function(err, result) {
+    var Poke = req.body;
+    console.log('Updating Poke: ' + id);
+    console.log(JSON.stringify(Poke));
+    db.collection('Pokes', function(err, collection) {
+        collection.update({'_id':new BSON.ObjectID(id)}, Poke, {safe:true}, function(err, result) {
             if (err) {
-                console.log('Error updating wine: ' + err);
+                console.log('Error updating Poke: ' + err);
                 res.send({'error':'An error has occurred'});
             } else {
                 console.log('' + result + ' document(s) updated');
-                res.send(wine);
+                res.send(Poke);
             }
         });
     });
 }
 
-exports.deleteWine = function(req, res) {
+exports.deletePoke = function(req, res) {
     var id = req.params.id;
-    console.log('Deleting wine: ' + id);
-    db.collection('wines', function(err, collection) {
+    console.log('Deleting Poke: ' + id);
+    db.collection('Pokes', function(err, collection) {
         collection.remove({'_id':new BSON.ObjectID(id)}, {safe:true}, function(err, result) {
             if (err) {
                 res.send({'error':'An error has occurred - ' + err});
