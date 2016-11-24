@@ -35,30 +35,35 @@ var handleCB = function (status,op,err,body) {
 var populateDB = function() {
 	   var data = [ { 
 			table: 'monsters',
+			"_id": "pikachu",
 		    name: 'pikachu', 
 		    skills: ['thunder bolt', 'iron tail', 'quick attack', 'mega punch'], 
 		    type: 'electric' 
 		},
 	    { 
 			table: 'monsters',
+			"_id": "bulbosaur",
 		    name: 'bulbosaur', 
 		    skills: ['lightning fire', 'thunder stomp', 'quick kill', 'super punch'], 
 		    type: 'grass' 
 		},
 	    { 
 			table: 'monsters',
+			"_id": "weedle",
 		    name: 'weedle', 
 		    skills: ['grass fire', 'herbal stomp', 'quick greening', 'super pull'], 
 		    type: 'herb' 
 		},
 	    { 
 			table: 'monsters',
+			"_id": "bull",
 		    name: 'bull', 
 		    skills: ['cow stampede', 'lift off', 'mega horn', 'moo'], 
 		    type: 'herb' 
 		},
 		{ 
 			table: 'monsters',
+			"_id": "ivysaur",
 		    name: 'ivysaur', 
 		    skills: ['lightning strike', 'crumbly stomp', 'quick kill', 'super punch'], 
 		    type: 'poison' 
@@ -69,6 +74,7 @@ var populateDB = function() {
 		    insertDB(data[i], handleCB);
 	   }
 		
+	   // output database info to the console 
 		nano.db.get('pokemon', function(err, body) {
 			  if (!err) {
 			    console.log(body);
@@ -142,6 +148,17 @@ var listDB = function() {
 		});
 }
 
+exports.findById = function(req, res) {
+	 var id = req.params.id;
+	 console.log("looking for: "+id)
+     db.get(id, function (error, existing) { 
+ 	  if(!error) {
+ 		  res.send(existing);
+ 		  console.log("Retrieved: " + id + " ---> " + existing);
+ 	  }
+	  });
+};
+
 exports.findByType = function(req, res) {
 	var type = req.params.type;
 	db.view('pokemon', 'by_type', {'key': type, 'include_docs': false}, function(err, body){
@@ -171,6 +188,8 @@ exports.findByName = function(req, res) {
 	    
 	    });
 };
+
+// use the default find all
 exports.findAll = function(req, res) {
 	db.list({startkey:'', 'include_docs': true, limit:20}, function(err, body) {
 		  if (!err) {
@@ -182,6 +201,7 @@ exports.findAll = function(req, res) {
 		});
 };
 
+// use the view - filter all
 exports.viewAll = function(req, res) {
 	db.view('pokemon', 'all', {'include_docs': false}, function(err, body){
 	    if(!err){
@@ -195,50 +215,59 @@ exports.viewAll = function(req, res) {
 	    });
 };
 exports.addPoke = function(req, res) {
-    var Poke = req.body;
-    console.log('Adding Poke: ' + JSON.stringify(Poke));
-    db.collection('Pokes', function(err, collection) {
-        collection.insert(Poke, {safe:true}, function(err, result) {
-            if (err) {
-                res.send({'error':'An error has occurred'});
-            } else {
-                console.log('Success: ' + JSON.stringify(result[0]));
-                res.send(result[0]);
-            }
-        });
+    var poke = req.body;
+    var pokestr = JSON.stringify(poke);
+    console.log('Adding Pokemon: ' + pokestr);
+    db.insert(poke, function(err, body) {
+    	  if (!err) {
+    	    console.log("inserted: " +pokestr);
+    	    res.send(body);
+    	  } else res.send(err);
     });
 }
 
+db.update = function(obj, key, callback) {
+	 var db = this;
+	 db.get(key, function (error, existing) { 
+	  if(!error) {
+		  obj._rev = existing._rev;
+		  db.insert(obj, key, callback);
+	  }
+	    
+	 });
+};
+
 exports.updatePoke = function(req, res) {
-    var id = req.params.id;
-    var Poke = req.body;
-    console.log('Updating Poke: ' + id);
-    console.log(JSON.stringify(Poke));
-    db.collection('Pokes', function(err, collection) {
-        collection.update({'_id':new BSON.ObjectID(id)}, Poke, {safe:true}, function(err, result) {
-            if (err) {
-                console.log('Error updating Poke: ' + err);
-                res.send({'error':'An error has occurred'});
-            } else {
-                console.log('' + result + ' document(s) updated');
-                res.send(Poke);
-            }
-        });
+	var poke = req.body;
+	var pokestr = JSON.stringify(poke);
+    console.log('Updating Poke: ' + poke.name);
+    db.update(poke, poke.name , function(err, result) {
+    	 if (err) {
+    		 return console.log('Error during update!');
+    		 res.send(err);
+    	 } else {
+    		 console.log('Updated! '+poke);
+    		 res.send(result);
+    	 }
+    	 
     });
 }
 
 exports.deletePoke = function(req, res) {
-    var id = req.params.id;
-    console.log('Deleting Poke: ' + id);
-    db.collection('Pokes', function(err, collection) {
-        collection.remove({'_id':new BSON.ObjectID(id)}, {safe:true}, function(err, result) {
-            if (err) {
-                res.send({'error':'An error has occurred - ' + err});
-            } else {
-                console.log('' + result + ' document(s) deleted');
-                res.send(req.body);
-            }
-        });
-    });
+      var id = req.params.id;
+      db.get(id, function (error, existing) { 
+  	  if(!error) {
+  		  var rev = existing._rev;
+  	      console.log('Deleting Poke: ' + id + ' and Rev: '+rev);
+  		  db.destroy(id, rev, function(err, body) {
+  			  if (!err) {
+  			    console.log(body);
+  			    res.send(body);
+  			  } else {
+  				  res.send(err);
+  			  }
+  		  });
+  	  }
+  	 });
 }
 

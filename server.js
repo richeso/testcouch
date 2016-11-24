@@ -11,6 +11,7 @@ app.configure(function () {
 
 app.get('/pokes', poke.findAll);
 app.get('/pokes/all', poke.viewAll);
+app.get('/pokes/id/:id', poke.findById);
 app.get('/pokes/name/:name', poke.findByName);
 app.get('/pokes/type/:type', poke.findByType);
 app.post('/pokes/add', poke.addPoke);

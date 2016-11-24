@@ -1,0 +1,26 @@
+f you want to test your API before using it in a client application, you can invoke your REST services straight from a browser address bar. 
+For example, you could try:
+
+http://localhost:3000/pokes
+You will only be able to test your GET services that way. A more versatile solution to test RESTful services is to use cURL, 
+a command line utility for transferring data with URL syntax.
+
+For example, using cURL, you can test the Wine Cellar API with the following commands:
+
+Get all pokemons:
+curl -i -X GET http://localhost:3000/pokes
+
+Get pokemon with _id value of pikachu (use a value that exists in your database):
+curl -i -X GET http://localhost:3000/pokes/id/pikachu
+curl -i -X GET http://localhost:3000/pokes/name/pikachu
+curl -i -X GET http://localhost:3000/pokes/type/electric
+
+Add a new pokemon:
+curl -i -X POST -H 'Content-Type: application/json' -d '{"table": "monsters", "_id": "frog", "name": "frog", "skills": ["leap", "high jump", "bully"], "type": "croak"}' http://localhost:3000/pokes/add
+
+Modify pokemon  with _id value of weedle:
+curl -i -X PUT -H 'Content-Type: application/json' -d '{"table": "monsters", "_id": "weedle", "name": "weedle", "skills": ["worm", "burrow", "bite"], "type": "serpent"}'  http://localhost:3000/pokes/update/weedle
+
+
+Delete pokes with _id value of frog:
+curl -i -X DELETE http://localhost:3000/pokes/delete/frog
